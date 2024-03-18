@@ -22,11 +22,13 @@ const setCache = (key: CachedKey, cacheTime: number, cachedData: CachedData) => 
 
   if (cacheTime > -1) {
     // if cache out, clear it
+    // 同一 key 对应的 cache 被更新时重置该 key 的过期时间
     timer = setTimeout(() => {
       cache.delete(key);
     }, cacheTime);
   }
 
+  // cache 保存时同时记录 timer 方便清除
   cache.set(key, {
     ...cachedData,
     timer,

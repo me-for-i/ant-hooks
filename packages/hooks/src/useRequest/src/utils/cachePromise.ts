@@ -13,6 +13,7 @@ const setCachePromise = (cacheKey: CachedKey, promise: Promise<any>) => {
   // no use promise.finally for compatibility
   promise
     .then((res) => {
+      // 若 promise 完成，则删除对应 cacheKey
       cachePromise.delete(cacheKey);
       return res;
     })

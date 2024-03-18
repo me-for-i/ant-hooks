@@ -5,7 +5,7 @@ const useRetryPlugin: Plugin<any, any[]> = (fetchInstance, { retryInterval, retr
   const timerRef = useRef<Timeout>();
   const countRef = useRef(0);
 
-  const triggerByRetry = useRef(false);
+  const triggerByRetry = useRef(false); // 请求是否由错误重试触发？
 
   if (!retryCount) {
     return {};
@@ -13,6 +13,7 @@ const useRetryPlugin: Plugin<any, any[]> = (fetchInstance, { retryInterval, retr
 
   return {
     onBefore: () => {
+      // 若本次请求不是由错误重试引起的，那么重置错误计数
       if (!triggerByRetry.current) {
         countRef.current = 0;
       }
@@ -27,8 +28,10 @@ const useRetryPlugin: Plugin<any, any[]> = (fetchInstance, { retryInterval, retr
     },
     onError: () => {
       countRef.current += 1;
+      // 没有超过错误次数的限制
       if (retryCount === -1 || countRef.current <= retryCount) {
         // Exponential backoff
+        // 随着错误次数的增加，重试的间隔时间成指数关系增长，最长为 30s
         const timeout = retryInterval ?? Math.min(1000 * 2 ** countRef.current, 30000);
         timerRef.current = setTimeout(() => {
           triggerByRetry.current = true;
